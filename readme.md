@@ -26,15 +26,19 @@
 
 **下行封包結構（11 bytes）**
 
-| Byte | 內容 |
-|---|---|
-| [0] | `0x7B`（帧頭） |
-| [1]–[2] | 預留 |
-| [3]–[4] | X 軸線速度（mm/s，Big-Endian） |
-| [5]–[6] | Y 軸線速度（mm/s，Big-Endian） |
-| [7]–[8] | Z 軸角速度（rad/s × 1000，Big-Endian） |
-| [9] | Checksum（前 9 bytes XOR） |
-| [10] | `0x7D`（帧尾） |
+| Byte | 內容 | 說明 |
+|---|---|---|
+| [0] | `0x7B` | 帧頭 |
+| [1] | `0x00` | 預留 |
+| [2] | `0x00` | 預留 |
+| [3] | X MSB | X 軸線速度高位元組（mm/s，Big-Endian） |
+| [4] | X LSB | X 軸線速度低位元組 |
+| [5] | Y MSB | Y 軸線速度高位元組 |
+| [6] | Y LSB | Y 軸線速度低位元組 |
+| [7] | Z MSB | Z 軸角速度高位元組（rad/s × 1000） |
+| [8] | Z LSB | Z 軸角速度低位元組 |
+| [9] | Checksum | 前 9 Bytes XOR 校驗碼 |
+| [10] | `0x7D` | 帧尾 |
 
 ## 安裝與建置
 
@@ -97,7 +101,7 @@ cd ~/ros2_ws
 source install/setup.bash
 ros2 run cpp_topic_pkg wheeltec_uart_bridge --ros-args -p usart_port_name:=/dev/ttyACM0
 ```
-
+![啟動](test-picture/1.png)
 **4. 終端機 B — 監看測試板回傳的解碼結果**
 
 ```bash
