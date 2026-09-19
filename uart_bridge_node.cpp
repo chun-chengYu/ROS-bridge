@@ -49,6 +49,7 @@ private:
     tty.c_cflag |= CS8;
     tty.c_lflag = 0;
     tty.c_oflag = 0;
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY | ICRNL | INLCR | ISTRIP | BRKINT);
     tcsetattr(fd, TCSANOW, &tty);
   }
 
