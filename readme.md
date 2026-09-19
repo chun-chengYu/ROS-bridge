@@ -5,12 +5,12 @@
 ## 功能
 
 - 訂閱 `/cmd_vel`（`geometry_msgs/msg/Twist`），即時轉換並送出對應的 UART 控制封包
-- 依協議規格將 `linear.x` / `linear.y` / `angular.z` 轉換為 mm/s、mm/s、rad/s×1000，並以 `int16_t` 大端序（Big-Endian）打包
+- 依協議規格將 `linear.x` / `linear.y` / `angular.z` 轉換為 mm/s、mm/s、rad/s×1000，並以 `int16_t` Big-Endian打包
 - 封包自帶 XOR checksum，符合底盤原廠協議
 - **500ms 逾時機制**：超過 0.5 秒沒收到新指令，每 200ms 自動送出一次全零的安全停止封包
 - 皆透過同一個 `/cmd_vel` 介面接入
 
-## 專案範圍
+## 範圍
 
 - 本節點**只負責** ROS2 端的封包轉換（`cpp_topic_pkg` 套件、`wheeltec_uart_bridge` 節點）
 - **未修改**STM32 韌體
@@ -139,7 +139,7 @@ usbipd detach --busid 1-1
 
 ![測試結果(正)](test-picture/3.png)
 ![測試結果(負)](test-picture/4.png)
-## 專案結構
+## 結構
 
 ```
 cpp_topic_pkg/
