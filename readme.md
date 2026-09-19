@@ -58,7 +58,7 @@ ros2 run cpp_topic_pkg wheeltec_uart_bridge --ros-args -p usart_port_name:=/dev/
 
 ## 測試方式
 
-由於開發階段沒有實體車輛可用，改以一塊**與車輛無關的 STM32 Nucleo-144 (F429ZI)** 開發板作為臨時接收端：韌體僅解析封包格式（帧頭/帧尾/checksum）並將解碼結果透過序列埠印出，驗證轉換節點輸出是否符合協議規格。
+由於開發階段沒有實體車輛可用，改以一塊**與車輛無關的 STM32 Nucleo-144 (F429ZI)** 開發板作為臨時接收端：韌體僅解析封包格式（帧頭/帧尾/checksum）並將解碼結果透過序列埠印出。
 
 測試範圍：
 - 正值 / 負值指令的打包與解碼正確性（含有號數 / 兩補數表示）
@@ -68,6 +68,70 @@ ros2 run cpp_topic_pkg wheeltec_uart_bridge --ros-args -p usart_port_name:=/dev/
 
 測試環境搭建（含 WSL2 + `usbipd-win` 橋接 USB 裝置）。
 
+### 測試指令
+
+因為 ROS2 節點跑在 WSL2，測試板是 Windows 認到的 USB 裝置，兩者中間用 `usbipd-win` 橋接。
+
+**1. Windows（系統管理員 PowerShell）：把測試板轉給 WSL**
+
+```powershell
+usbipd list                        # 找到 ST-Link 的 BUSID
+usbipd bind --busid 1-1
+usbipd attach --wsl --busid 1-1
+```
+
+**2. WSL：確認裝置並編譯套件**
+
+```bash
+ls /dev/ttyACM*                    # 確認裝置出現，如 /dev/ttyACM0
+sudo chmod 666 /dev/ttyACM0
+
+cd ~/ros2_ws
+colcon build --packages-select cpp_topic_pkg
+```
+
+**3. 終端機 A — 啟動轉換節點**
+
+```bash
+cd ~/ros2_ws
+source install/setup.bash
+ros2 run cpp_topic_pkg wheeltec_uart_bridge --ros-args -p usart_port_name:=/dev/ttyACM0
+```
+
+**4. 終端機 B — 監看測試板回傳的解碼結果**
+
+```bash
+stty -F /dev/ttyACM0 115200 raw -echo
+cat /dev/ttyACM0
+```
+
+**5. 終端機 C — 送出測試指令**
+
+```bash
+source /opt/ros/lyrical/setup.bash
+
+# 正值測試
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.2}, angular: {z: 0.3}}" --once
+
+# 負值測試
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: -0.15}, angular: {z: -0.45}}" --once
+```
+
+**6. 測試結束後，Windows（系統管理員 PowerShell）歸還裝置**
+
+```powershell
+usbipd detach --busid 1-1
+```
+
+### 測試結果
+
+| 測試案例 | 送出 `/cmd_vel` | 原始封包(hex) | 解碼結果 | 結果 |
+|---|---|---|---|---|
+| 正值 | `linear.x=0.2`, `angular.z=0.3` | `7B 00 00 00 C8 00 00 01 2C 9E 7D` | `RX OK x=200 y=0 z=300` 
+| 負值 | `linear.x=-0.15`, `angular.z=-0.45` | `7B 00 00 FF 6A 00 00 FE 3E 2E 7D` | `RX OK x=-150 y=0 z=-450` 
+| 逾時安全機制 | 無指令輸入超過 0.5 秒 | `7B 00 00 00 00 00 00 00 00 7B 7D` | 持續收到 `RX OK x=0 y=0 z=0` 
+| Checksum 驗證 | （所有測試封包） | 校驗碼需正確才印出 RX OK | 全數正確解析、無漏包 
+
 ## 專案結構
 
 ```
@@ -76,5 +140,4 @@ cpp_topic_pkg/
 │   └── uart_bridge_node.cpp   # 轉換節點主程式
 ├── package.xml
 ├── CMakeLists.txt
-
 ```
