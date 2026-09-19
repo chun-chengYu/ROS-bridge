@@ -135,6 +135,8 @@ usbipd detach --busid 1-1
 | 負值 | `linear.x=-0.15`, `angular.z=-0.45` | `7B 00 00 FF 6A 00 00 FE 3E 2E 7D` | `RX OK x=-150 y=0 z=-450` 
 | 逾時安全機制 | 無指令輸入超過 0.5 秒 | `7B 00 00 00 00 00 00 00 00 7B 7D` | 持續收到 `RX OK x=0 y=0 z=0` 
 | Checksum 驗證 | （所有測試封包） | 校驗碼需正確才印出 RX OK | 全數正確解析、無漏包 
+
+
 ![測試結果(正)](test-picture/3.png)
 ![測試結果(負)](test-picture/4.png)
 ## 專案結構
