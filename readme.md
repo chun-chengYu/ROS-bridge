@@ -101,7 +101,7 @@ cd ~/ros2_ws
 source install/setup.bash
 ros2 run cpp_topic_pkg wheeltec_uart_bridge --ros-args -p usart_port_name:=/dev/ttyACM0
 ```
-![啟動](test-picture/1.png)
+![alt text](image.png)
 **4. 終端機 B — 監看測試板回傳的解碼結果**
 
 ```bash
@@ -120,7 +120,7 @@ ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.2}, angular: {z:
 # 負值測試
 ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: -0.15}, angular: {z: -0.45}}" --once
 ```
-
+![測試指令](test-picture/2.png)
 **6. 測試結束後，Windows（系統管理員 PowerShell）歸還裝置**
 
 ```powershell
@@ -135,7 +135,8 @@ usbipd detach --busid 1-1
 | 負值 | `linear.x=-0.15`, `angular.z=-0.45` | `7B 00 00 FF 6A 00 00 FE 3E 2E 7D` | `RX OK x=-150 y=0 z=-450` 
 | 逾時安全機制 | 無指令輸入超過 0.5 秒 | `7B 00 00 00 00 00 00 00 00 7B 7D` | 持續收到 `RX OK x=0 y=0 z=0` 
 | Checksum 驗證 | （所有測試封包） | 校驗碼需正確才印出 RX OK | 全數正確解析、無漏包 
-
+![測試結果(正)](test-picture/3.png)
+![測試結果(負)](test-picture/4.png)
 ## 專案結構
 
 ```
