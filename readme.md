@@ -1,4 +1,4 @@
-# wheeltec-4dw-pig-farm-sim — ROS2 → STM32 UART 轉換節點
+# ROS2 → STM32 UART 轉換節點
 
 將 ROS2 標準速度指令 `/cmd_vel` 轉換為STM32所需的序列埠控制封包，只要發布標準的 `geometry_msgs/msg/Twist` 訊息即可控制車輛。
 
